@@ -33,5 +33,5 @@ marginsplot
 
 *margins & figure: RIM
 logit saa2 gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop c.sg_dens_reg2b##i.cso_dummy, vce(cl c_id)
-margins, at(sg_dens_reg2b=(0(5)40)) over(cso_dummy)
+margins, at(sg_dens_reg2b=(0(5)40)) over(ria_dummy)
 marginsplot
