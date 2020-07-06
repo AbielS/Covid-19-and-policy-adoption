@@ -84,17 +84,25 @@ outreg2 using "regs/oxstreg1.txt", label eform bdec(3) rdec(3) excel symbol(***,
 stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 poly2 c.sg_dens_reg3#c.poly2, efron strata(rec) vce(cluster c_id) hr
 outreg2 using "regs/oxstreg1.txt", label eform bdec(3) rdec(3) excel symbol(***, **, *, +) alpha(0.001, 0.01, 0.05, 0.10) addsta(Number of countries, e(N_clust), Number of failures, e(N_fail), Pseudo-R-squared, e(r2_p), Log likelihood, e(ll)) append ctitle(Policy adoption)
 seeout using "regs/oxstreg1.txt", label
-	*descriptives (APPENDIX A)
+	*descriptives (APPENDIX A, TABLE S2)
 	gen densdem=sg_dens_reg3*poly2
 	label var densdem "Adoption density X electoral democracy"	
 	mkcorr status gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop confpop sg_dens_reg3 poly2 densdem, log("regs/marginalrisk.txt")  cdec(3) mdec(3) lab means num casewise replace
 
-	*plot the results (FIGURE 3)
-	stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 poly2, efron strata(rec) vce(cluster c_id) hr
+	*plot the results (FIGURE 3, standardized)
+	egen std_gini_=std(gini_)
+	egen std_hbed_=std(hbed_)
+	egen std_pdistlog=std(pdistlog)
+	egen std_deathpop=std(deathpop)
+	egen std_sg_dens_reg3=std(sg_dens_reg3)
+	egen std_poly2=std(poly2)
+	
+	stcox gdpcaplog taxr_ std_gini_ std_hbed_ s_pop_65 urb_ std_pdistlog std_deathpop std_sg_dens_reg3 std_poly2, efron strata(rec) vce(cluster c_id) hr
+
 	estimates store mrs1
 	coefplot mrs1, drop(gdpcaplog taxr_ s_pop_65 urb_ _cons) xline(1) eform xtitle(Hazard ratio)
 
-		*Ibid. infection rate (TABLE D1)
+		*Ibid. infection rate (TABLE S2)
 		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog confpop , efron strata(rec) vce(cluster c_id) hr
 		outreg2 using "regs/oxstreg1.txt", label eform bdec(3) rdec(3) excel symbol(***, **, *, +) alpha(0.001, 0.01, 0.05, 0.10) addsta(Number of countries, e(N_clust), Number of failures, e(N_fail), Pseudo-R-squared, e(r2_p), Log likelihood, e(ll)) replace ctitle(Policy adoption)
 		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog sg_dens_reg3, efron strata(rec) vce(cluster c_id) hr
@@ -181,29 +189,46 @@ seeout using "regs/oxstreg1.txt", label
 
 		seeout using "regs/oxstreg1.txt", label
 
-	*plot the results
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2exremhog, efron strata(rec) vce(cluster c_id) hr
+	*plot the results (standardized)
+	egen std_v2exremhog=std(v2exremhog)
+	egen std_v2exrescon=std(v2exrescon)
+	egen std_v2lgotovst=std(v2lgotovst)
+	egen std_v2cscnsult=std(v2cscnsult)
+	egen std_v2csprtcpt=std(v2csprtcpt)
+	egen std_i_adm2=std(i_adm2)
+	egen std_ri_adm2=std(ri_adm2)
+	egen std_Bureaucratic_quality=std(Bureaucratic_quality)
+	egen std_effective_parliament=std(effective_parliament)
+		label var std_v2exremhog "Head of gov. removal by legislature in practice"
+		label var std_v2exrescon "Executive respects constitution"
+		label var std_v2lgotovst "Executive oversight"
+		label var std_v2cscnsult "CSO consultation"
+		label var std_v2csprtcpt "CSO participatory environment"
+		label var std_i_adm2 "Impartial administration"
+		label var std_ri_adm2 "Rigorous and impartial administration"
+		label var std_Bureaucratic_quality "Bureaucratic quality"
+		label var std_effective_parliament "Effective parliament"
+
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_v2exremhog, efron strata(rec) vce(cluster c_id) hr
 		estimates store res1
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2exrescon, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_v2exrescon, efron strata(rec) vce(cluster c_id) hr
 		estimates store res2	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2lgotovst, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_v2lgotovst, efron strata(rec) vce(cluster c_id) hr
 		estimates store res3	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2cscnsult, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_v2cscnsult, efron strata(rec) vce(cluster c_id) hr
 		estimates store res4	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2csprtcpt, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_v2csprtcpt, efron strata(rec) vce(cluster c_id) hr
 		estimates store res5	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 v2exl_legitlead, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_i_adm2, efron strata(rec) vce(cluster c_id) hr
 		estimates store res6	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 i_adm2, efron strata(rec) vce(cluster c_id) hr
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_ri_adm2, efron strata(rec) vce(cluster c_id) hr
 		estimates store res7	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 ri_adm2, efron strata(rec) vce(cluster c_id) hr
+		stcox taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_Bureaucratic_quality, efron strata(rec) vce(cluster c_id) hr
 		estimates store res8	
-		stcox taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 Bureaucratic_quality, efron strata(rec) vce(cluster c_id) hr
-		estimates store res9	
-		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 effective_parliament, efron strata(rec) vce(cluster c_id) hr
-		estimates store res10
+		stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 std_effective_parliament, efron strata(rec) vce(cluster c_id) hr
+		estimates store res9
 	
-		coefplot (res2 \ res3 \ res4 \ res5 \ res7 \ res8 \ res9 \ res10), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop sg_dens_reg3 poly2 _cons) xline(1) eform xtitle(Hazard ratio)
+		coefplot (res1 \ res2 \ res3 \ res4 \ res5 \ res7 \ res8 \ res9 \ res10), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop sg_dens_reg3 poly2 _cons) xline(1) eform xtitle(Hazard ratio)
 
 	*World Bank indicators
 	stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop sg_dens_reg3 poly2, efron strata(rec) vce(cluster c_id) hr

@@ -31,24 +31,30 @@
 		seeout using "regs/oxstreg1.txt", label
 
 
-
-					*PLOT THE RESULTS  (FIGURE 4)
+					*PLOT THE RESULTS  (FIGURE 4, standardized)
+					egen std_deathpop=std(deathpop)
+					egen std_poly2=std(poly2)					
+					egen std_s1g_dens_reg=std(s1g_dens_reg)
+					egen std_s2g_dens_reg=std(s2g_dens_reg)
+					egen std_s3g_dens_reg=std(s3g_dens_reg)
+					egen std_s5g_dens_reg=std(s5g_dens_reg)
+					egen std_s6g_dens_reg=std(s6g_dens_reg)
 					*1) SCHOOL CLOSURE
-					stset edate, failure(sa1==1, 2) id(c_id) origin(time firstdate_c2)
-						gen s1g_dens_reg1= s1g_dens_reg
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg1 poly2 , efron vce(cluster c_id) hr
+						stset edate, failure(sa1==1, 2) id(c_id) origin(time firstdate_c2)
+						gen s1g_dens_reg1= std_s1g_dens_reg
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg1 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res1
 					*2) WORKPLACE CLOSURE
 					stset edate, failure(sa2==1, 2) id(c_id) origin(time firstdate_c2)
 						drop s1g_dens_reg1
-						gen s1g_dens_reg1= s2g_dens_reg
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg1 poly2 , efron vce(cluster c_id) hr
+						gen s1g_dens_reg1= std_s2g_dens_reg
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg1 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res2
 					*3) CANCEL PUBLIC EVENTS
 					stset edate, failure(sa3==1, 2) id(c_id) origin(time firstdate_c2)
 						drop s1g_dens_reg1
-						gen s1g_dens_reg1= s3g_dens_reg
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg1 poly2 , efron vce(cluster c_id) hr
+						gen s1g_dens_reg1= std_s3g_dens_reg
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg1 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res3
 					/*4) CLOSURE OF PUBLIC TRANSPORTATION
 					stset edate, failure(sa4==1, 2) id(c_id) origin(time firstdate_c2)
@@ -60,28 +66,29 @@
 					*5) PUBLIC INFORMATION CAMPAIGNS
 					stset edate, failure(sa5==1, 2) id(c_id) origin(time firstdate_c2)
 						drop s1g_dens_reg1
-						gen s1g_dens_reg1= s5g_dens_reg
-						gen s1g_dens_reg2= s5g_dens_reg
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg1 poly2 , efron vce(cluster c_id) hr
+						gen s1g_dens_reg1= std_s5g_dens_reg
+						gen s1g_dens_reg2= std_s5g_dens_reg
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg1 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res5
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg2 poly2 , efron vce(cluster c_id) hr
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg2 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res5b
 					*6) RESTRICTIONS ON INTERNAL MOBILITY
 					stset edate, failure(sa6==1, 2) id(c_id) origin(time firstdate_c2)
 						drop s1g_dens_reg1
-						gen s1g_dens_reg1= s6g_dens_reg
-						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog deathpop s1g_dens_reg1 poly2 , efron vce(cluster c_id) hr
+						gen s1g_dens_reg1= std_s6g_dens_reg
+						stcox gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog std_deathpop s1g_dens_reg1 std_poly2 , efron vce(cluster c_id) hr
 						estimates store res6
 					*FIGURE 4: excluding death from all and density from public information campaigns
-					coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \ res5b, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop s1g_dens_reg2 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+					coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \ res5b, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop s1g_dens_reg2 std_deathpop _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+
 						*b) all included
 						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog s1g_dens _cons) xline(1) eform xtitle(Hazard ratio) swapnames
 						*c) exclude death from all
-						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \ res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \ res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog std_deathpop _cons) xline(1) eform xtitle(Hazard ratio) swapnames
 						*d) all separetly
-						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog s1g_dens_reg1 poly2 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
-						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop poly2 s1g_dens_reg2 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
-						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog deathpop s1g_dens_reg1 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog std_s1g_dens_reg1 s1g_dens_reg1 std_poly2 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog std_deathpop std_poly2 std_s1g_dens_reg2 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
+						coefplot (res1, aseq(School closure) \ res2, aseq(Workplace closure) \ res3, aseq(Cancellation of public events) \  res5, aseq(Public information campaigns) \ res6, aseq(Restrictions on internal mobility) ), drop(gdpcaplog taxr_ gini_ hbed_ s_pop_65 urb_ pdistlog pdistlog std_deathpop std_s1g_dens_reg1 s1g_dens_reg1 _cons) xline(1) eform xtitle(Hazard ratio) swapnames
 
 
 
